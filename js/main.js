@@ -1,12 +1,22 @@
 import postApi from './api/postApi';
 
 async function main() {
-  const queryParams = {
-    _page: 1,
-    _limit: 10,
-  };
-  const response = await postApi.getAll(queryParams);
-  console.log(response);
+  try {
+    const queryParams = {
+      _page: 1,
+      _limit: 10,
+    };
+    const data = await postApi.getAll(queryParams);
+    console.log(data);
+  } catch (error) {
+    console.log('get all failed', error);
+    //show modal, toast error
+  }
+
+  await postApi.updateFormData({
+    id: 'sktwi1cgkkuif36do',
+    title: 'Adipisci a enim 444',
+  });
 }
 
 main();
