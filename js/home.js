@@ -52,6 +52,27 @@ function renderPostList(postList) {
   });
 }
 
+function renderPagination(pagination) {
+  const ulPagination = document.getElementById('pagination');
+  if (!pagination || !ulPagination) return;
+
+  //calc totalPages
+  const { _page, _limit, _totalRows } = pagination;
+  const totalRows = Math.ceil(_totalRows / _limit);
+
+  //save page and totalPages to ulPagination
+  ulPagination.dataset.page = _page;
+  ulPagination.dataset.totalRows = _totalRows;
+
+  //check if enable.disable prev link
+  if (_page <= 1) ulPagination.firstElementChild.classList.add('disabled');
+  else ulPagination.firstElementChild.classList.remove('disabled');
+
+  //check if enable.disable next link
+  if (_page >= totalRows) ulPagination.lastElementChild.classList.add('disabled');
+  else ulPagination.lastElementChild.classList.remove('disabled');
+}
+
 function handlePreClick(e) {
   e.preventDefault();
   console.log('prev click');
@@ -75,7 +96,7 @@ function handleFilterChange(filerName, filterValue) {
 
 function initPagination() {
   //bind click event for prev/next link
-  const ulPagination = document.getElementById('Pagination');
+  const ulPagination = document.getElementById('pagination');
   if (!ulPagination) return;
 
   //add click event for prev link
@@ -111,6 +132,7 @@ function initURL() {
 
     const { data, pagination } = await postApi.getAll(queryParams);
     renderPostList(data);
+    renderPagination(pagination);
   } catch (error) {
     console.log('get all failed', error);
     //show modal, toast error
