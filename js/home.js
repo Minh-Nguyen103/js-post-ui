@@ -52,12 +52,63 @@ function renderPostList(postList) {
   });
 }
 
+function handlePreClick(e) {
+  e.preventDefault();
+  console.log('prev click');
+}
+
+function handleNextClick(e) {
+  e.preventDefault();
+  console.log('next click');
+}
+
+function handleFilterChange(filerName, filterValue) {
+  //update queryparams
+  const url = new URL(window.location);
+  url.searchParams.set(filerName, filterValue);
+  history.pushState({}, '', url);
+
+  //fetch API
+
+  //re-render post list
+}
+
+function initPagination() {
+  //bind click event for prev/next link
+  const ulPagination = document.getElementById('Pagination');
+  if (!ulPagination) return;
+
+  //add click event for prev link
+  const preLink = ulPagination.firstElementChild?.firstElementChild;
+  if (preLink) {
+    preLink.addEventListener('click', handlePreClick);
+  }
+
+  //add click event for next link
+  const nextLink = ulPagination.lastElementChild?.firstElementChild;
+  if (nextLink) {
+    nextLink.addEventListener('click', handleNextClick);
+  }
+}
+
+function initURL() {
+  //update queryparams
+  const url = new URL(window.location);
+
+  //update search params if needed
+  if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1);
+  if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6);
+
+  history.pushState({}, '', url);
+}
+
 (async () => {
   try {
-    const queryParams = {
-      _page: 1,
-      _limit: 6,
-    };
+    initPagination();
+    initURL();
+
+    const queryParams = new URLSearchParams(window.location.search);
+
     const { data, pagination } = await postApi.getAll(queryParams);
     renderPostList(data);
   } catch (error) {
