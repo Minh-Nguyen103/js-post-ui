@@ -1,7 +1,8 @@
 import postApi from './api/postApi';
-import { setTextContent, trucateText } from './utils';
+import { getUlPagination, setTextContent, trucateText } from './utils';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs from 'dayjs';
+import debounce from 'lodash.debounce';
 
 dayjs.extend(relativeTime);
 
@@ -41,10 +42,13 @@ function createPostElement(post) {
 }
 
 function renderPostList(postList) {
-  if (!Array.isArray(postList) || postList.length === 0) return;
+  if (!Array.isArray(postList)) return;
 
   const ulElement = document.getElementById('postList');
   if (!ulElement) return;
+
+  //clear text content postlist
+  ulElement.textContent = '';
 
   postList.forEach((post) => {
     const liElement = createPostElement(post);
@@ -53,7 +57,7 @@ function renderPostList(postList) {
 }
 
 function renderPagination(pagination) {
-  const ulPagination = document.getElementById('pagination');
+  const ulPagination = getUlPagination();
   if (!pagination || !ulPagination) return;
 
   //calc totalPages
@@ -76,27 +80,50 @@ function renderPagination(pagination) {
 function handlePreClick(e) {
   e.preventDefault();
   console.log('prev click');
+
+  const ulPagination = getUlPagination();
+  if (!ulPagination) return;
+
+  const page = Number.parseInt(ulPagination.dataset.page) || 2;
+  if (page <= 1) return;
+
+  handleFilterChange('_page', page - 1);
 }
 
 function handleNextClick(e) {
   e.preventDefault();
   console.log('next click');
+
+  const ulPagination = getUlPagination();
+  if (!ulPagination) return;
+
+  const page = Number.parseInt(ulPagination.dataset.page) || 1;
+  const totalRows = ulPagination.dataset.totalRows;
+  if (page >= totalRows) return;
+
+  handleFilterChange('_page', page + 1);
 }
 
-function handleFilterChange(filerName, filterValue) {
+async function handleFilterChange(filerName, filterValue) {
   //update queryparams
   const url = new URL(window.location);
   url.searchParams.set(filerName, filterValue);
+
+  //reset page if needed
+  if (filerName === 'title_like') url.searchParams.set('_page', 1);
+
   history.pushState({}, '', url);
 
   //fetch API
-
+  const { data, pagination } = await postApi.getAll(url.searchParams);
   //re-render post list
+  renderPostList(data);
+  renderPagination(pagination);
 }
 
 function initPagination() {
   //bind click event for prev/next link
-  const ulPagination = document.getElementById('pagination');
+  const ulPagination = getUlPagination();
   if (!ulPagination) return;
 
   //add click event for prev link
@@ -123,9 +150,30 @@ function initURL() {
   history.pushState({}, '', url);
 }
 
+function initSearch() {
+  const searchInput = document.getElementById('searchInput');
+  if (!searchInput) return;
+
+  //set default values from query params
+  //title_like
+  const queryParams = new URLSearchParams(window.location.search);
+  if (queryParams.get('title_like')) {
+    searchInput.value = queryParams.get('title_like');
+  }
+
+  const debounceSearch = debounce(
+    (event) => handleFilterChange('title_like', event.target.value),
+    500
+  );
+
+  searchInput.addEventListener('input', debounceSearch);
+}
+
 (async () => {
   try {
+    //attach event
     initPagination();
+    initSearch();
     initURL();
 
     const queryParams = new URLSearchParams(window.location.search);
