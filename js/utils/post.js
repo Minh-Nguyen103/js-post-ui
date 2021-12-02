@@ -25,6 +25,7 @@ export function createPostElement(post) {
       thumbnailElement.src = post.imageUrl;
 
       thumbnailElement.addEventListener('error', () => {
+        console.log('load img error --> use default placeholder');
         thumbnailElement.src = 'https://via.placeholder.com/468x60/?text=thumbnail';
       });
     }
@@ -32,8 +33,16 @@ export function createPostElement(post) {
     //caculator for timespan
     setTextContent(liElement, '[data-id="timeSpan"]', ` - ${dayjs(post.updatedAt).fromNow()}`);
 
-    return liElement;
     //attach event
+    //go to post detail when click on div.post-item
+    const firstChild = liElement.firstElementChild;
+    if (firstChild) {
+      firstChild.addEventListener('click', () => {
+        window.location.assign(`/post-detail.html?id=${post.id}`);
+      });
+    }
+
+    return liElement;
   } catch (error) {
     console.log(post);
     console.log('failed to create post item', error);
