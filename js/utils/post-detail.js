@@ -1,6 +1,7 @@
 import { setTextContent } from './commom';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
+import { setBackgroundImage } from '.';
 
 dayjs.extend(localizedFormat);
 
@@ -8,14 +9,7 @@ export function renderPostDetail(post) {
   if (!post) return;
 
   //render heroImage
-  const heroImage = document.getElementById('postHeroImage');
-  if (heroImage) {
-    heroImage.style.backgroundImage = `url(${post.imageUrl})`;
-
-    heroImage.addEventListener('error', () => {
-      thumbnailElement.src = 'https://via.placeholder.com/468x60/?text=thumbnail';
-    });
-  }
+  setBackgroundImage(document, '#postHeroImage', post.imageUrl);
 
   const postDetail = document.getElementById('postDetail');
   if (!postDetail) return;

@@ -23,6 +23,7 @@ export function createPostElement(post) {
     const thumbnailElement = liElement.querySelector('[data-id="thumbnail"');
     if (thumbnailElement) {
       thumbnailElement.src = post.imageUrl;
+      // console.log(thumbnailElement.error);
 
       thumbnailElement.addEventListener('error', () => {
         console.log('load img error --> use default placeholder');

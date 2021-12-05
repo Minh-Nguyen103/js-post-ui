@@ -5,3 +5,5 @@ export * from './pagination';
 export * from './search';
 export * from './post-detail';
 export * from './lightbox';
+export * from './add-post';
+export * from './post-form';
