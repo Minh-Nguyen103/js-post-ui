@@ -37,8 +37,24 @@ export function createPostElement(post) {
     //go to post detail when click on div.post-item
     const firstChild = liElement.firstElementChild;
     if (firstChild) {
-      firstChild.addEventListener('click', () => {
+      firstChild.addEventListener('click', (event) => {
+        //S2
+        //if event  is triggered from menu -> ignore
+        const menu = liElement.querySelector('[data-id="menu"]');
+        if (menu && menu.contains(event.target)) return;
+
         window.location.assign(`/post-detail.html?id=${post.id}`);
+      });
+    }
+
+    //add click event for edit button
+    const editButton = liElement.querySelector('[data-id="edit"]');
+    if (editButton) {
+      editButton.addEventListener('click', (e) => {
+        //prevent event bubbling to parent
+        //S1:
+        // e.stopPropagation();
+        window.location.assign(`/add-edit-post.html?id=${post.id}`);
       });
     }
 
