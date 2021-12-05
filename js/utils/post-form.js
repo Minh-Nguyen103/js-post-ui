@@ -9,6 +9,18 @@ function setFormValues(form, formValues) {
   setBackgroundImage(document, '#postHeroImage', formValues?.imageUrl);
 }
 
+function getFormValues(form) {
+  const formValues = {};
+
+  const data = new FormData(form);
+
+  for (const [key, value] of data) {
+    formValues[key] = value;
+  }
+
+  return formValues;
+}
+
 export function initPostForm({ formId, defaultValues, onSubmit }) {
   if (!formId || !defaultValues) return;
 
@@ -16,4 +28,11 @@ export function initPostForm({ formId, defaultValues, onSubmit }) {
   if (!form) return;
 
   setFormValues(form, defaultValues);
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const formValues = getFormValues(form);
+    console.log(formValues);
+  });
 }
