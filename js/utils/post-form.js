@@ -1,4 +1,5 @@
-import { setBackgroundImage, setFieldValue } from './commom';
+import { setBackgroundImage, setFieldValue, setTextContent } from './commom';
+import * as yup from 'yup';
 
 function setFormValues(form, formValues) {
   setFieldValue(form, '[name="title"]', formValues?.title);
@@ -21,6 +22,65 @@ function getFormValues(form) {
   return formValues;
 }
 
+function setFieldError(form, name, error) {
+  const element = form.querySelector(`[name="${name}"]`);
+  if (element) {
+    element.setCustomValidity(error);
+    setTextContent(element.parentElement, '.invalid-feedback', error);
+  }
+}
+
+function getPostSchema() {
+  return yup.object().shape({
+    title: yup.string().required('Please enter title'),
+    author: yup
+      .string()
+      .required('Please enter author')
+      .test(
+        'at least two word',
+        'Please enter at least two word',
+        (value) => value.split(' ').filter((x) => !!x && x.length >= 3).length >= 2
+      ),
+    description: yup.string(),
+  });
+}
+
+async function validatePostForm(form, formValues) {
+  try {
+    //reset previous errors
+    ['title', 'author'].forEach((name) => {
+      setFieldError(form, name, '');
+    });
+
+    //start validating
+    const schema = getPostSchema();
+    await schema.validate(formValues, { abortEarly: false });
+  } catch (error) {
+    const errorLog = {};
+    console.log(error.name);
+    console.log(error.inner);
+
+    if (error.name === 'ValidationError' && Array.isArray(error.inner)) {
+      for (const validationError of error.inner) {
+        const name = validationError.path;
+
+        //ignore if the field is already errorLog
+        if (errorLog[name]) continue;
+        console.log(validationError.message);
+        //set field error and mark as logged
+        setFieldError(form, name, validationError.message);
+        errorLog[name] = true;
+      }
+    }
+  }
+
+  //add was-validated class to form element
+  const isValid = form.checkValidity();
+  if (!isValid) form.classList.add('was-validated');
+
+  return false;
+}
+
 export function initPostForm({ formId, defaultValues, onSubmit }) {
   if (!formId || !defaultValues) return;
 
@@ -32,7 +92,13 @@ export function initPostForm({ formId, defaultValues, onSubmit }) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
+    //get form values
     const formValues = getFormValues(form);
     console.log(formValues);
+
+    //validation
+    //if vaild trigger submit callback
+    //otherwise, show validation errors
+    if (!validatePostForm(form, formValues)) return;
   });
 }
