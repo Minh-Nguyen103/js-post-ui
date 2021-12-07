@@ -78,7 +78,7 @@ async function validatePostForm(form, formValues) {
   const isValid = form.checkValidity();
   if (!isValid) form.classList.add('was-validated');
 
-  return false;
+  return isValid;
 }
 
 export function initPostForm({ formId, defaultValues, onSubmit }) {
@@ -89,16 +89,19 @@ export function initPostForm({ formId, defaultValues, onSubmit }) {
 
   setFormValues(form, defaultValues);
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     //get form values
     const formValues = getFormValues(form);
-    console.log(formValues);
+    formValues.id = defaultValues.id;
 
     //validation
     //if vaild trigger submit callback
     //otherwise, show validation errors
-    if (!validatePostForm(form, formValues)) return;
+    const isValid = await validatePostForm(form, formValues);
+    if (!isValid) return;
+
+    onSubmit?.(formValues);
   });
 }
