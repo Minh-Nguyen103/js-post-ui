@@ -6,3 +6,4 @@ export * from './search';
 export * from './post-detail';
 export * from './lightbox';
 export * from './post-form';
+export * from './toast';
