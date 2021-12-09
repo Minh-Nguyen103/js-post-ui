@@ -152,6 +152,16 @@ function initRadioImageSource(form) {
   });
 }
 
+function initUploadImage(form) {
+  const uploadImage = form.querySelector('[name="image"]');
+  if (!uploadImage) return;
+
+  uploadImage.addEventListener('change', (event) => {
+    const imageUrl = URL.createObjectURL(event.target.files[0]);
+    setBackgroundImage(document, '#postHeroImage', imageUrl);
+  });
+}
+
 export function initPostForm({ formId, defaultValues, onSubmit }) {
   if (!formId || !defaultValues) return;
 
@@ -164,6 +174,7 @@ export function initPostForm({ formId, defaultValues, onSubmit }) {
   //init event
   initRadioImageSource(form);
   initRandomImage(form);
+  initUploadImage(form);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
