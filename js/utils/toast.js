@@ -5,7 +5,7 @@ export const toast = {
   info(message) {
     Toastify({
       text: message,
-      duration: 3000,
+      duration: 2000,
       close: true,
       gravity: 'top', // `top` or `bottom`
       position: 'right', // `left`, `center` or `right`
@@ -17,7 +17,7 @@ export const toast = {
   success(message) {
     Toastify({
       text: message,
-      duration: 3000,
+      duration: 2000,
       close: true,
       gravity: 'top', // `top` or `bottom`
       position: 'right', // `left`, `center` or `right`
@@ -29,7 +29,7 @@ export const toast = {
   error(message) {
     Toastify({
       text: message,
-      duration: 3000,
+      duration: 2000,
       close: true,
       gravity: 'top', // `top` or `bottom`
       position: 'right', // `left`, `center` or `right`

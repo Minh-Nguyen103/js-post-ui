@@ -13,8 +13,10 @@ async function handlePostFormSubmit(formValues) {
     const savePost = formValues.id
       ? await postApi.update(formValues)
       : await postApi.add(formValues);
+
     //show success message
     toast.success('Save post successfully!');
+
     //redirect to post detail
     setTimeout(() => {
       window.location.assign(`/post-detail.html?id=${savePost.id}`);
