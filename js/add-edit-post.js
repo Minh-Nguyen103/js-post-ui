@@ -36,7 +36,7 @@ async function handlePostFormSubmit(formValues) {
       ? await postApi.getById(idPost)
       : {
           title: '',
-          imgURL: '',
+          imageUrl: '',
           author: '',
           description: '',
         };

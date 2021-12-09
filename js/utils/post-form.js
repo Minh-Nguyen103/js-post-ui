@@ -1,4 +1,4 @@
-import { setBackgroundImage, setFieldValue, setTextContent } from './commom';
+import { randomNumber, setBackgroundImage, setFieldValue, setTextContent } from './commom';
 import * as yup from 'yup';
 
 function setFormValues(form, formValues) {
@@ -6,7 +6,7 @@ function setFormValues(form, formValues) {
   setFieldValue(form, '[name="author"]', formValues?.author);
   setFieldValue(form, '[name="description"]', formValues?.description);
 
-  setFieldValue(form, '[name="imgUrl"]', formValues?.imageUrl); //hidden input
+  setFieldValue(form, '[name="imageUrl"]', formValues?.imageUrl); //hidden input
   setBackgroundImage(document, '#postHeroImage', formValues?.imageUrl);
 }
 
@@ -42,13 +42,17 @@ function getPostSchema() {
         (value) => value.split(' ').filter((x) => !!x && x.length >= 3).length >= 2
       ),
     description: yup.string(),
+    imageUrl: yup
+      .string()
+      .required('Please random a background image')
+      .url('Please enter a valid URL'),
   });
 }
 
 async function validatePostForm(form, formValues) {
   try {
     //reset previous errors
-    ['title', 'author'].forEach((name) => {
+    ['title', 'author', 'imageUrl'].forEach((name) => {
       setFieldError(form, name, '');
     });
 
@@ -97,6 +101,57 @@ function hideLoding(form) {
   }
 }
 
+function initRandomImage(form) {
+  const randomButton = document.getElementById('postChangeImage');
+  if (!randomButton) return;
+
+  randomButton.addEventListener('click', () => {
+    const imageUrl = `https://picsum.photos/id/${randomNumber(1000)}/1378/400`;
+
+    //set imageUrl input + postHeroImage
+    setFieldValue(form, '[name="imageUrl"]', imageUrl); //hidden input
+    setBackgroundImage(document, '#postHeroImage', imageUrl);
+  });
+}
+
+//S1: loop each radio to get control corresponding
+
+// function hideImageSourceControl(form, checkRadioList) {
+//   if (!Array.isArray(checkRadioList)) return;
+
+//   [...checkRadioList].forEach((inputRadio) => {
+//     const control = form.querySelector(`[data-radio="${inputRadio.id}"]`);
+//     if (!control) return;
+
+//     if (inputRadio.checked) {
+//       control.classList.remove('d-none');
+//       return;
+//     }
+
+//     control.classList.add('d-none');
+//   });
+// }
+
+function renderImageSourceControl(form, selectedValue) {
+  const controlList = form.querySelectorAll('[data-id="imageSource"]');
+  if (!controlList) return;
+
+  controlList.forEach((control) => {
+    control.hidden = control.dataset.imageSource !== selectedValue;
+  });
+}
+
+function initRadioImageSource(form) {
+  const radioList = form.querySelectorAll('[name="imageSource"]');
+  if (!radioList) return;
+
+  [...radioList].forEach((radio) => {
+    radio.addEventListener('change', (e) => {
+      renderImageSourceControl(form, e.target.value);
+    });
+  });
+}
+
 export function initPostForm({ formId, defaultValues, onSubmit }) {
   if (!formId || !defaultValues) return;
 
@@ -105,6 +160,10 @@ export function initPostForm({ formId, defaultValues, onSubmit }) {
 
   let submitting = false;
   setFormValues(form, defaultValues);
+
+  //init event
+  initRadioImageSource(form);
+  initRandomImage(form);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -123,7 +182,11 @@ export function initPostForm({ formId, defaultValues, onSubmit }) {
     //if vaild trigger submit callback
     //otherwise, show validation errors
     const isValid = await validatePostForm(form, formValues);
-    if (!isValid) return;
+    if (!isValid) {
+      hideLoding(form);
+      submitting = false;
+      return;
+    }
 
     await onSubmit?.(formValues);
     setTimeout(() => {

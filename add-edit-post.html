@@ -103,19 +103,56 @@
                 <textarea class="form-control" name="description" rows="3"></textarea>
               </div>
 
-              <div class="form-group mb-3">
+              <div class="mb-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="imageSource"
+                    id="imageSourcePicsum"
+                    value="picsum"
+                    checked
+                  />
+                  <label class="form-check-label" for="imageSourcePicsum">
+                    Random image using picsum
+                  </label>
+                </div>
+
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="imageSource"
+                    id="imageSourceUpload"
+                    value="upload"
+                  />
+                  <label class="form-check-label" for="imageSourceUpload">
+                    Upload image from your computer
+                  </label>
+                </div>
+              </div>
+
+              <div data-id="imageSource" data-image-source="picsum" class="form-group mb-3">
                 <label for="postChangeImage">Image</label>
                 <small id="passwordHelpBlock" class="form-text text-muted">
                   We&apos;re using
                   <a href="https://picsum.photos">Picsum service</a> to get a random image.
                 </small>
-                <input type="hidden" name="imgUrl" />
+
+                <input type="text" class="d-none" name="imageUrl" />
 
                 <div>
                   <button type="button" id="postChangeImage" class="btn btn-dark">
                     Change post image
                   </button>
                 </div>
+
+                <div class="invalid-feedback"></div>
+              </div>
+
+              <div hidden data-id="imageSource" data-image-source="upload" class="input-group mb-3">
+                <input name="image" type="file" class="form-control" id="uploadImage" />
+                <label class="input-group-text" for="uploadImage">Upload</label>
               </div>
 
               <div class="text-center">
