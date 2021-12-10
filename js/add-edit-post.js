@@ -1,8 +1,21 @@
 import postApi from './api/postApi';
+import { ImageSource } from './constants';
 import { initPostForm, toast } from './utils';
 
+function removeUnuseFields(formValues) {
+  const payLoad = { ...formValues };
+
+  payLoad.imageSource === ImageSource.PICSUM ? delete payLoad.image : delete payLoad.imageUrl;
+
+  delete payLoad.imageSource;
+
+  return payLoad;
+}
+
 async function handlePostFormSubmit(formValues) {
-  // console.log('submit form parent', formValues);
+  const payLoad = removeUnuseFields(formValues);
+  console.log('submit form parent', formValues, payLoad);
+  return;
 
   try {
     // throw new Error('Erro for testing');
@@ -18,9 +31,9 @@ async function handlePostFormSubmit(formValues) {
     toast.success('Save post successfully!');
 
     //redirect to post detail
-    setTimeout(() => {
-      window.location.assign(`/post-detail.html?id=${savePost.id}`);
-    }, 2000);
+    // setTimeout(() => {
+    //   window.location.assign(`/post-detail.html?id=${savePost.id}`);
+    // }, 2000);
   } catch (error) {
     console.log('Failed to save post', error);
     toast.error(`Error: ${error.message}`);

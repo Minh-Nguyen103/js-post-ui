@@ -1,5 +1,6 @@
 import { randomNumber, setBackgroundImage, setFieldValue, setTextContent } from './commom';
 import * as yup from 'yup';
+import { ImageSource } from '../constants';
 
 function setFormValues(form, formValues) {
   setFieldValue(form, '[name="title"]', formValues?.title);
@@ -42,17 +43,33 @@ function getPostSchema() {
         (value) => value.split(' ').filter((x) => !!x && x.length >= 3).length >= 2
       ),
     description: yup.string(),
-    imageUrl: yup
-      .string()
-      .required('Please random a background image')
-      .url('Please enter a valid URL'),
+    imageSource: yup.string().oneOf([ImageSource.PICSUM, ImageSource.UPLOAD]),
+    imageUrl: yup.string().when('imageSource', {
+      is: ImageSource.PICSUM,
+      then: yup
+        .string()
+        .required('Please random a background image')
+        .url('Please enter a valid URL'),
+    }),
+    image: yup.mixed().when('imageSource', {
+      is: ImageSource.UPLOAD,
+      then: yup
+        .mixed()
+        .test('require', 'Please select image to upload', (field) => Boolean(field?.name))
+        .test('max-5mb', 'The image is too large(max 5MB)', (field) => {
+          const fieldSize = field?.size || 0;
+          const MAX_SIZE = 5 * 1024 * 1024; //5MB
+          console.log(fieldSize);
+          return fieldSize < MAX_SIZE;
+        }),
+    }),
   });
 }
 
 async function validatePostForm(form, formValues) {
   try {
     //reset previous errors
-    ['title', 'author', 'imageUrl'].forEach((name) => {
+    ['title', 'author', 'imageUrl', 'image'].forEach((name) => {
       setFieldError(form, name, '');
     });
 
@@ -70,7 +87,7 @@ async function validatePostForm(form, formValues) {
 
         //ignore if the field is already errorLog
         if (errorLog[name]) continue;
-        console.log(validationError.message);
+        // console.log(validationError.message);
         //set field error and mark as logged
         setFieldError(form, name, validationError.message);
         errorLog[name] = true;
@@ -156,8 +173,13 @@ function initUploadImage(form) {
   const uploadImage = form.querySelector('[name="image"]');
   if (!uploadImage) return;
 
+  let temp;
+
   uploadImage.addEventListener('change', (event) => {
-    const imageUrl = URL.createObjectURL(event.target.files[0]);
+    let data = event.target.files[0];
+    data ? (temp = data) : (data = temp);
+
+    const imageUrl = URL.createObjectURL(data);
     setBackgroundImage(document, '#postHeroImage', imageUrl);
   });
 }

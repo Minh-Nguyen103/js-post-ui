@@ -30,6 +30,7 @@
     <!-- Internal CSS -->
     <link rel="stylesheet" href="/styles/main.css" />
     <link rel="stylesheet" href="/styles/post-detail.css" />
+    <link rel="stylesheet" href="/styles/add-edit-post.css" />
   </head>
 
   <body>
@@ -106,7 +107,7 @@
               <div class="mb-3">
                 <div class="form-check">
                   <input
-                    class="form-check-input"
+                    class="form-check-inputRadio"
                     type="radio"
                     name="imageSource"
                     id="imageSourcePicsum"
@@ -120,7 +121,7 @@
 
                 <div class="form-check">
                   <input
-                    class="form-check-input"
+                    class="form-check-inputRadio"
                     type="radio"
                     name="imageSource"
                     id="imageSourceUpload"
@@ -159,6 +160,8 @@
                   accept="image/*"
                 />
                 <label class="input-group-text" for="uploadImage">Upload</label>
+
+                <div class="invalid-feedback"></div>
               </div>
 
               <div class="text-center">

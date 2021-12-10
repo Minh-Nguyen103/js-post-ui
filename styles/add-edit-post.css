@@ -1,0 +1,34 @@
+.form-check-inputRadio:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.form-check-inputRadio[type='radio'] {
+  border-radius: 50%;
+}
+
+.form-check .form-check-inputRadio {
+  float: left;
+  margin-left: -1.5em;
+}
+
+/* .form-check-inputRadio:checked[type='radio'] {
+  background-image: url('../images/c3.png');
+} */
+
+.form-check-inputRadio {
+  width: 1em;
+  height: 1em;
+  margin-top: 0.25em;
+  vertical-align: top;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  /* -webkit-appearance: none; */
+  -moz-appearance: none;
+  /* appearance: none; */
+  -webkit-print-color-adjust: exact;
+  color-adjust: exact;
+}
