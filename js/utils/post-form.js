@@ -59,7 +59,6 @@ function getPostSchema() {
         .test('max-5mb', 'The image is too large(max 5MB)', (field) => {
           const fieldSize = field?.size || 0;
           const MAX_SIZE = 5 * 1024 * 1024; //5MB
-          console.log(fieldSize);
           return fieldSize < MAX_SIZE;
         }),
     }),

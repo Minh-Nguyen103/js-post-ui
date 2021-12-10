@@ -9,31 +9,45 @@ function removeUnuseFields(formValues) {
 
   delete payLoad.imageSource;
 
+  //delete id if falsy
+  if (!payLoad.id) delete payLoad.id;
+
   return payLoad;
 }
 
+function jsonToFromData(jsonObject) {
+  const formData = new FormData();
+
+  for (const key in jsonObject) {
+    formData.set(key, jsonObject[key]);
+  }
+
+  return formData;
+}
+
 async function handlePostFormSubmit(formValues) {
-  const payLoad = removeUnuseFields(formValues);
-  console.log('submit form parent', formValues, payLoad);
-  return;
+  // console.log('submit form parent', formValues, payLoad);
+  // return;
 
   try {
+    const payLoad = removeUnuseFields(formValues);
+    const formData = jsonToFromData(payLoad);
     // throw new Error('Erro for testing');
     //check add/edit mode
     //S1: based on search params (check id)
     //S2: check id from formValues
     //call API
     const savePost = formValues.id
-      ? await postApi.update(formValues)
-      : await postApi.add(formValues);
+      ? await postApi.updateFormData(formData)
+      : await postApi.addFormData(formData);
 
     //show success message
     toast.success('Save post successfully!');
 
     //redirect to post detail
-    // setTimeout(() => {
-    //   window.location.assign(`/post-detail.html?id=${savePost.id}`);
-    // }, 2000);
+    setTimeout(() => {
+      window.location.assign(`/post-detail.html?id=${savePost.id}`);
+    }, 2000);
   } catch (error) {
     console.log('Failed to save post', error);
     toast.error(`Error: ${error.message}`);
