@@ -33,7 +33,10 @@ function setFieldError(form, name, error) {
 
 function getPostSchema() {
   return yup.object().shape({
-    title: yup.string().required('Please enter title'),
+    title: yup
+      .string()
+      .required('Please enter title')
+      .test('no empty', 'Title not be empty', (value) => Boolean(value.trim())),
     author: yup
       .string()
       .required('Please enter author')
@@ -77,8 +80,6 @@ async function validatePostForm(form, formValues) {
     await schema.validate(formValues, { abortEarly: false });
   } catch (error) {
     const errorLog = {};
-    console.log(error.name);
-    console.log(error.inner);
 
     if (error.name === 'ValidationError' && Array.isArray(error.inner)) {
       for (const validationError of error.inner) {
@@ -99,6 +100,24 @@ async function validatePostForm(form, formValues) {
   if (!isValid) form.classList.add('was-validated');
 
   return isValid;
+}
+
+async function validateFormField(form, formValues, name) {
+  try {
+    //clear previous error
+    setFieldError(form, name, '');
+
+    //start validating
+    const schema = getPostSchema();
+    await schema.validateAt(name, formValues);
+  } catch (error) {
+    setFieldError(form, name, error.message);
+  }
+
+  const field = form.querySelector(`[name="${name}"]`);
+  if (field && field.checkValidity()) {
+    field.parentElement.classList.add('was-validated');
+  }
 }
 
 function showLoading(form) {
@@ -123,6 +142,7 @@ function initRandomImage(form) {
 
   randomButton.addEventListener('click', () => {
     const imageUrl = `https://picsum.photos/id/${randomNumber(1000)}/1378/400`;
+    validateFormField(form, { imageSource: ImageSource.PICSUM, imageUrl }, 'imageUrl');
 
     //set imageUrl input + postHeroImage
     setFieldValue(form, '[name="imageUrl"]', imageUrl); //hidden input
@@ -172,14 +192,32 @@ function initUploadImage(form) {
   const uploadImage = form.querySelector('[name="image"]');
   if (!uploadImage) return;
 
+  //To save previous file
   let temp;
 
   uploadImage.addEventListener('change', (event) => {
-    let data = event.target.files[0];
-    data ? (temp = data) : (data = temp);
+    const file = event.target.files[0];
+    let imageUrl;
+    try {
+      imageUrl = URL.createObjectURL(file);
+    } catch (error) {
+      console.log('Error: ', error);
+    }
 
-    const imageUrl = URL.createObjectURL(data);
+    validateFormField(form, { imageSource: ImageSource.UPLOAD, image: file }, 'image');
     setBackgroundImage(document, '#postHeroImage', imageUrl);
+  });
+}
+
+function initValidationOnChange(form) {
+  ['title', 'author'].forEach((name) => {
+    const field = form.querySelector(`[name="${name}"]`);
+    if (field) {
+      field.addEventListener('input', (event) => {
+        const newValue = event.target.value;
+        validateFormField(form, { [name]: newValue }, name);
+      });
+    }
   });
 }
 
@@ -196,6 +234,7 @@ export function initPostForm({ formId, defaultValues, onSubmit }) {
   initRadioImageSource(form);
   initRandomImage(form);
   initUploadImage(form);
+  initValidationOnChange(form);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

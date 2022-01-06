@@ -59,6 +59,19 @@ export function createPostElement(post) {
       });
     }
 
+    //add click event for remove button
+    const removeButton = liElement.querySelector('[data-id="remove"]');
+    if (removeButton) {
+      removeButton.addEventListener('click', () => {
+        const customEvent = new CustomEvent('post-delete', {
+          bubbles: true,
+          detail: post,
+        });
+
+        removeButton.dispatchEvent(customEvent);
+      });
+    }
+
     return liElement;
   } catch (error) {
     console.log(post);
@@ -74,6 +87,12 @@ export function renderPostList(elementId, postList) {
 
   //clear text content postlist
   ulElement.textContent = '';
+
+  if (postList.length === 0) {
+    const emptyDataText = document.createElement('P');
+    emptyDataText.innerText = 'End of post';
+    ulElement.appendChild(emptyDataText);
+  }
 
   postList.forEach((post) => {
     const liElement = createPostElement(post);
